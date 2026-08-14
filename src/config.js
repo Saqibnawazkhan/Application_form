@@ -48,26 +48,35 @@ const config = {
 
 const warnings = [];
 
-if (!config.adminPassword) {
-  config.adminPassword = crypto.randomBytes(18).toString('base64url');
-  warnings.push(
-    `ADMIN_PASSWORD is not set. A temporary password was generated for this run: ${config.adminPassword}`
-  );
-}
-
-if (!config.sessionSecret) {
-  config.sessionSecret = crypto.randomBytes(48).toString('hex');
-  warnings.push('SESSION_SECRET is not set. Using a random secret - admin sessions reset on restart.');
-}
-
-if (!config.databaseUrl) {
-  warnings.push('DATABASE_URL is not set. Set it to your Postgres connection string.');
-}
+/**
+ * In production these must come from the environment - never from a generated
+ * fallback. Missing ones are reported rather than thrown, so a misconfigured
+ * deployment answers with a readable message instead of crashing the function
+ * at import time with an opaque 500.
+ */
+config.missingRequired = [];
 
 if (isProduction) {
-  for (const message of warnings) {
-    // Never run in production on generated secrets or without a database.
-    throw new Error(`[config] ${message}`);
+  if (!config.databaseUrl) config.missingRequired.push('DATABASE_URL');
+  if (!config.adminPassword) config.missingRequired.push('ADMIN_PASSWORD');
+  if (!config.sessionSecret) config.missingRequired.push('SESSION_SECRET');
+
+  // Keep the app inert but functional enough to serve the notice below.
+  if (!config.sessionSecret) config.sessionSecret = crypto.randomBytes(48).toString('hex');
+  if (!config.adminPassword) config.adminPassword = crypto.randomBytes(18).toString('base64url');
+} else {
+  if (!config.adminPassword) {
+    config.adminPassword = crypto.randomBytes(18).toString('base64url');
+    warnings.push(
+      `ADMIN_PASSWORD is not set. A temporary password was generated for this run: ${config.adminPassword}`
+    );
+  }
+  if (!config.sessionSecret) {
+    config.sessionSecret = crypto.randomBytes(48).toString('hex');
+    warnings.push('SESSION_SECRET is not set. Using a random secret - admin sessions reset on restart.');
+  }
+  if (!config.databaseUrl) {
+    warnings.push('DATABASE_URL is not set. Set it to your Postgres connection string.');
   }
 }
 

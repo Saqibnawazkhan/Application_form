@@ -28,16 +28,30 @@ const router = express.Router();
  * actually present in the deployed function. It also saves a disk read per hit.
  */
 const ADMIN_DIR = path.join(__dirname, '..', '..', 'admin');
-const ASSETS = {
-  dashboardHtml: fs.readFileSync(path.join(ADMIN_DIR, 'index.html'), 'utf8'),
-  loginHtml: fs.readFileSync(path.join(ADMIN_DIR, 'login.html'), 'utf8'),
-  css: fs.readFileSync(path.join(ADMIN_DIR, 'admin.css'), 'utf8'),
-  dashboardJs: fs.readFileSync(path.join(ADMIN_DIR, 'app.js'), 'utf8'),
-  loginJs: fs.readFileSync(path.join(ADMIN_DIR, 'login.js'), 'utf8'),
-};
 
-function sendAsset(res, body, type) {
-  res.type(type).set('Cache-Control', 'private, no-store').send(body);
+// The filenames stay literal so the bundler can see them; the whole read is
+// guarded so a missing file degrades the dashboard instead of taking the entire
+// app down at import time.
+const ASSETS = (() => {
+  try {
+    return {
+      dashboardHtml: fs.readFileSync(path.join(ADMIN_DIR, 'index.html'), 'utf8'),
+      loginHtml: fs.readFileSync(path.join(ADMIN_DIR, 'login.html'), 'utf8'),
+      css: fs.readFileSync(path.join(ADMIN_DIR, 'admin.css'), 'utf8'),
+      dashboardJs: fs.readFileSync(path.join(ADMIN_DIR, 'app.js'), 'utf8'),
+      loginJs: fs.readFileSync(path.join(ADMIN_DIR, 'login.js'), 'utf8'),
+    };
+  } catch (error) {
+    console.error('[admin] dashboard files are missing from the deployment:', error.message);
+    return null;
+  }
+})();
+
+function sendAsset(res, key, type) {
+  if (!ASSETS) {
+    return res.status(500).type('html').send('Dashboard files are missing from this deployment.');
+  }
+  res.type(type).set('Cache-Control', 'private, no-store').send(ASSETS[key]);
 }
 
 // ---------------------------------------------------------------------------
@@ -46,12 +60,12 @@ function sendAsset(res, body, type) {
 
 router.get('/login', (req, res) => {
   if (isAuthenticated(req)) return res.redirect('/admin');
-  sendAsset(res, ASSETS.loginHtml, 'html');
+  sendAsset(res, 'loginHtml', 'html');
 });
 
 // Assets the sign-in page itself needs (no session yet).
-router.get('/admin.css', (req, res) => sendAsset(res, ASSETS.css, 'css'));
-router.get('/login.js', (req, res) => sendAsset(res, ASSETS.loginJs, 'js'));
+router.get('/admin.css', (req, res) => sendAsset(res, 'css', 'css'));
+router.get('/login.js', (req, res) => sendAsset(res, 'loginJs', 'js'));
 
 router.post('/api/login', express.json(), async (req, res, next) => {
   try {
@@ -88,9 +102,9 @@ router.use(requireAdmin);
 // Dashboard
 // ---------------------------------------------------------------------------
 
-router.get('/', (req, res) => sendAsset(res, ASSETS.dashboardHtml, 'html'));
+router.get('/', (req, res) => sendAsset(res, 'dashboardHtml', 'html'));
 
-router.get('/app.js', (req, res) => sendAsset(res, ASSETS.dashboardJs, 'js'));
+router.get('/app.js', (req, res) => sendAsset(res, 'dashboardJs', 'js'));
 
 function toApplication(row) {
   return {
@@ -247,7 +261,7 @@ router.get('/api/export.csv', async (req, res, next) => {
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="orbit-applications.csv"');
     res.setHeader('Cache-Control', 'private, no-store');
-    res.send(`﻿${lines.join('\r\n')}`);
+    res.send(`\uFEFF${lines.join('\r\n')}`);
   } catch (error) {
     next(error);
   }
