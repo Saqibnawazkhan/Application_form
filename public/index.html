@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Careers at Orbit Innovations — Apply Now</title>
+<meta name="description" content="Orbit Innovations is hiring Website Developers, App Developers and Digital Marketing Specialists. Hybrid — remote + onsite. Apply in under 3 minutes.">
+<meta name="theme-color" content="#FF5A1F">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Orbit Innovations">
+<meta property="og:title" content="Join Orbit Innovations — We're Hiring">
+<meta property="og:description" content="Website Developer · App Developer · Digital Marketing Specialist. Hybrid — remote + onsite. Apply in under 3 minutes.">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Add a 1200x630 PNG at /assets/og-cover.png and uncomment for rich link previews:
+<meta property="og:image" content="/assets/og-cover.png">
+<meta name="twitter:image" content="/assets/og-cover.png"> -->
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/favicon.svg">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#application-form">Skip to application form</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="/" aria-label="Orbit Innovations home">
+      <svg class="logo-mark" viewBox="0 0 40 40" role="img" aria-hidden="true" focusable="false">
+        <ellipse cx="20" cy="20" rx="18" ry="8.5" transform="rotate(-30 20 20)"
+                 fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="20" cy="20" r="6.5" fill="#FF5A1F"/>
+      </svg>
+      <span class="logo-text">Orbit <span>Innovations</span></span>
+    </a>
+    <span class="header-tag">We&rsquo;re hiring</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <p class="badge"><span class="badge-dot" aria-hidden="true"></span>Hybrid &mdash; Remote + Onsite</p>
+    <h1>Join Orbit&nbsp;Innovations</h1>
+    <p class="lede">We&rsquo;re looking for talented people to join our growing team.</p>
+    <a class="btn btn-primary hero-cta" href="#application-form">Apply now</a>
+    <p class="hero-note">Takes about 3 minutes &middot; PDF or DOC resume</p>
+  </section>
+
+  <!-- ================= OPEN ROLES ================= -->
+  <section class="section" aria-labelledby="roles-heading">
+    <h2 id="roles-heading" class="section-title">Current open positions</h2>
+    <ul class="roles">
+      <li class="role-card">
+        <div class="role-body">
+          <h3>Website Developer</h3>
+          <p>Build fast, responsive websites and web apps for our clients.</p>
+        </div>
+        <button type="button" class="btn btn-ghost role-pick" data-position="Website Developer">Apply</button>
+      </li>
+      <li class="role-card">
+        <div class="role-body">
+          <h3>App Developer</h3>
+          <p>Ship polished mobile experiences across Android and iOS.</p>
+        </div>
+        <button type="button" class="btn btn-ghost role-pick" data-position="App Developer">Apply</button>
+      </li>
+      <li class="role-card">
+        <div class="role-body">
+          <h3>Digital Marketing Specialist</h3>
+          <p>Grow brands through content, campaigns and performance marketing.</p>
+        </div>
+        <button type="button" class="btn btn-ghost role-pick" data-position="Digital Marketing Specialist">Apply</button>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ================= FORM ================= -->
+  <section class="section" id="application-form" aria-labelledby="form-heading">
+    <h2 id="form-heading" class="section-title">Application form</h2>
+    <p class="section-sub">Fields marked <span class="req">*</span> are required.</p>
+
+    <div class="alert alert-error" id="formAlert" role="alert" hidden></div>
+
+    <form id="applicationForm" class="form" novalidate autocomplete="on">
+
+      <!-- Honeypot: hidden from humans, irresistible to bots -->
+      <div class="hp" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+      <input type="hidden" name="startedAt" id="startedAt">
+      <input type="hidden" name="source" id="source">
+
+      <fieldset class="field-group">
+        <legend class="group-title">Your details</legend>
+
+        <div class="field">
+          <label for="fullName">Full name <span class="req">*</span></label>
+          <input type="text" id="fullName" name="fullName" autocomplete="name"
+                 maxlength="100" required aria-describedby="fullName-error" placeholder="Your full name">
+          <p class="error" id="fullName-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="email">Email address <span class="req">*</span></label>
+          <input type="email" id="email" name="email" autocomplete="email" inputmode="email"
+                 maxlength="254" required aria-describedby="email-error" placeholder="you@example.com">
+          <p class="error" id="email-error"></p>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="phone">Phone number <span class="req">*</span></label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel"
+                   maxlength="25" required aria-describedby="phone-error" placeholder="+92 300 1234567">
+            <p class="error" id="phone-error"></p>
+          </div>
+
+          <div class="field">
+            <label for="city">City <span class="req">*</span></label>
+            <input type="text" id="city" name="city" autocomplete="address-level2"
+                   maxlength="80" required aria-describedby="city-error" placeholder="Your city">
+            <p class="error" id="city-error"></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="field-group">
+        <legend class="group-title">Role &amp; experience</legend>
+
+        <div class="field">
+          <label for="position">Position applying for <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="position" name="position" required aria-describedby="position-error">
+              <option value="">Select a position</option>
+              <option>Website Developer</option>
+              <option>App Developer</option>
+              <option>Digital Marketing Specialist</option>
+            </select>
+          </div>
+          <p class="error" id="position-error"></p>
+        </div>
+
+        <div class="field">
+          <fieldset class="choice-set" aria-describedby="workPreference-error">
+            <legend>Work preference <span class="req">*</span></legend>
+            <div class="segmented">
+              <label class="segment"><input type="radio" name="workPreference" value="Remote"><span>Remote</span></label>
+              <label class="segment"><input type="radio" name="workPreference" value="Onsite"><span>Onsite</span></label>
+              <label class="segment"><input type="radio" name="workPreference" value="Hybrid"><span>Hybrid</span></label>
+            </div>
+          </fieldset>
+          <p class="error" id="workPreference-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="experience">Years of experience <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="experience" name="experience" required aria-describedby="experience-error">
+              <option value="">Select experience</option>
+              <option>Fresher</option>
+              <option>Less than 1 year</option>
+              <option>1&ndash;2 years</option>
+              <option>2&ndash;3 years</option>
+              <option>3+ years</option>
+            </select>
+          </div>
+          <p class="error" id="experience-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="skillInput">Skills <span class="req">*</span></label>
+          <p class="hint">Type a skill and press Enter to add it. Add as many as you like.</p>
+          <div class="chips-input" id="chipsBox">
+            <ul class="chips" id="skillChips" aria-live="polite"></ul>
+            <input type="text" id="skillInput" maxlength="40" autocomplete="off"
+                   aria-describedby="skills-error" placeholder="e.g. React, Figma, SEO">
+          </div>
+          <div class="suggestions" id="skillSuggestions" aria-label="Suggested skills"></div>
+          <input type="hidden" name="skills" id="skills">
+          <p class="error" id="skills-error"></p>
+        </div>
+      </fieldset>
+
+      <fieldset class="field-group">
+        <legend class="group-title">Your work</legend>
+
+        <div class="field">
+          <label for="portfolioUrl">Portfolio / LinkedIn URL</label>
+          <input type="url" id="portfolioUrl" name="portfolioUrl" inputmode="url" maxlength="300"
+                 aria-describedby="portfolioUrl-error" placeholder="linkedin.com/in/yourname">
+          <p class="error" id="portfolioUrl-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="githubUrl">GitHub URL <span class="optional">(optional)</span></label>
+          <input type="url" id="githubUrl" name="githubUrl" inputmode="url" maxlength="300"
+                 aria-describedby="githubUrl-error" placeholder="github.com/yourname">
+          <p class="error" id="githubUrl-error"></p>
+        </div>
+
+        <div class="field">
+          <label for="cv">Upload CV / Resume <span class="req">*</span></label>
+          <input type="file" id="cv" name="cv" class="visually-hidden"
+                 accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                 required aria-describedby="cv-error cv-hint">
+          <label class="dropzone" for="cv" id="dropzone">
+            <svg class="dz-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"
+                    fill="none" stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="dz-title">Tap to upload your CV</span>
+            <span class="dz-sub" id="cv-hint">PDF, DOC or DOCX &middot; max 5 MB</span>
+          </label>
+
+          <div class="file-card" id="fileCard" hidden>
+            <div class="file-meta">
+              <span class="file-name" id="fileName"></span>
+              <span class="file-size" id="fileSize"></span>
+            </div>
+            <button type="button" class="file-remove" id="fileRemove" aria-label="Remove selected file">Remove</button>
+            <div class="progress" id="progress" hidden>
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+          </div>
+          <p class="error" id="cv-error"></p>
+        </div>
+      </fieldset>
+
+      <fieldset class="field-group">
+        <legend class="group-title">A bit more about you</legend>
+
+        <div class="field">
+          <label for="about">Tell us about yourself</label>
+          <p class="hint">Briefly describe your experience, your skills, and why you&rsquo;d like to join Orbit Innovations.</p>
+          <textarea id="about" name="about" rows="5" maxlength="2000"
+                    aria-describedby="about-count" placeholder="A few sentences is plenty."></textarea>
+          <p class="counter" id="about-count">0 / 2000</p>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="expectedSalary">Expected salary <span class="optional">(optional)</span></label>
+            <input type="text" id="expectedSalary" name="expectedSalary" maxlength="60"
+                   placeholder="e.g. 120,000 PKR / month">
+          </div>
+
+          <div class="field">
+            <label for="availability">Availability</label>
+            <div class="select-wrap">
+              <select id="availability" name="availability" aria-describedby="availability-error">
+                <option value="">Select availability</option>
+                <option>Immediately</option>
+                <option>Within 2 weeks</option>
+                <option>Within 1 month</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <p class="error" id="availability-error"></p>
+          </div>
+        </div>
+
+        <div class="field" id="availabilityNoteField" hidden>
+          <label for="availabilityNote">Please tell us when you can start</label>
+          <input type="text" id="availabilityNote" name="availabilityNote" maxlength="80"
+                 aria-describedby="availabilityNote-error" placeholder="e.g. After 15 September">
+          <p class="error" id="availabilityNote-error"></p>
+        </div>
+      </fieldset>
+
+      <div class="field confirm-field">
+        <label class="check">
+          <input type="checkbox" id="confirm" name="confirm" required aria-describedby="confirm-error">
+          <span>I confirm that the information provided is accurate. <span class="req">*</span></span>
+        </label>
+        <p class="error" id="confirm-error"></p>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
+        <span class="btn-label">SUBMIT APPLICATION</span>
+        <span class="spinner" aria-hidden="true"></span>
+      </button>
+      <p class="form-foot">Your details are sent securely and are only visible to the Orbit Innovations hiring team.</p>
+    </form>
+  </section>
+
+  <!-- ================= SUCCESS ================= -->
+  <section class="section success" id="successScreen" hidden tabindex="-1" aria-labelledby="success-heading">
+    <div class="success-card">
+      <div class="success-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="M4 12.5l5.2 5.2L20 7" fill="none" stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 id="success-heading">Application Submitted Successfully!</h2>
+      <p>Thank you for your interest in Orbit Innovations. Our team will review your application and contact you if your profile is shortlisted.</p>
+      <p class="ref">Your reference ID<strong id="referenceId">&mdash;</strong></p>
+      <a class="btn btn-primary" href="/">Back to Orbit Innovations</a>
+      <button type="button" class="btn btn-ghost" id="successShare">Share this opportunity</button>
+    </div>
+  </section>
+
+  <!-- ================= SHARE ================= -->
+  <section class="section share" aria-labelledby="share-heading">
+    <div class="share-card">
+      <h2 id="share-heading">Know someone who would be a great fit?</h2>
+      <p>Share this opportunity with them.</p>
+      <div class="share-actions">
+        <button type="button" class="btn btn-primary" id="shareBtn">Share Application</button>
+        <button type="button" class="btn btn-ghost" id="copyBtn">Copy link</button>
+      </div>
+      <p class="share-status" id="shareStatus" role="status"></p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="foot-brand">Orbit Innovations</p>
+    <p class="foot-note">We review every application. Shortlisted candidates are contacted by email.</p>
+  </div>
+</footer>
+
+<script src="/assets/app.js" defer></script>
+</body>
+</html>

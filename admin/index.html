@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Applications — Orbit Innovations Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="admin-body">
+
+<header class="admin-header">
+  <div class="admin-wrap admin-header-inner">
+    <a class="logo" href="/admin">
+      <svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <ellipse cx="20" cy="20" rx="18" ry="8.5" transform="rotate(-30 20 20)"
+                 fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="20" cy="20" r="6.5" fill="#FF5A1F"/>
+      </svg>
+      <span class="logo-text">Orbit <span>Innovations</span></span>
+    </a>
+    <div class="admin-header-actions">
+      <a class="btn btn-ghost btn-sm" id="exportBtn" href="/admin/api/export.csv">Export CSV</a>
+      <button type="button" class="btn btn-ghost btn-sm" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="admin-wrap admin-main">
+
+  <h1 class="admin-title">Applications</h1>
+
+  <section class="stats" id="stats" aria-label="Application counts"></section>
+
+  <section class="filters" aria-label="Filters">
+    <div class="filter search-filter">
+      <label for="search">Search</label>
+      <input type="search" id="search" placeholder="Name, email, phone, skill or ID">
+    </div>
+    <div class="filter">
+      <label for="statusFilter">Status</label>
+      <div class="select-wrap"><select id="statusFilter"><option value="all">All statuses</option></select></div>
+    </div>
+    <div class="filter">
+      <label for="positionFilter">Position</label>
+      <div class="select-wrap"><select id="positionFilter"><option value="all">All positions</option></select></div>
+    </div>
+    <div class="filter">
+      <label for="fromDate">From</label>
+      <input type="date" id="fromDate">
+    </div>
+    <div class="filter">
+      <label for="toDate">To</label>
+      <input type="date" id="toDate">
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm reset-btn" id="resetFilters">Reset</button>
+  </section>
+
+  <p class="result-count" id="resultCount" role="status"></p>
+
+  <section class="table-wrap">
+    <table class="apps-table">
+      <thead>
+        <tr>
+          <th scope="col">Application</th>
+          <th scope="col">Candidate</th>
+          <th scope="col">Position</th>
+          <th scope="col">Experience</th>
+          <th scope="col">Received</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <p class="empty" id="emptyState" hidden>No applications match these filters.</p>
+  </section>
+
+  <nav class="pager" id="pager" aria-label="Pagination" hidden>
+    <button type="button" class="btn btn-ghost btn-sm" id="prevPage">Previous</button>
+    <span id="pageInfo"></span>
+    <button type="button" class="btn btn-ghost btn-sm" id="nextPage">Next</button>
+  </nav>
+</main>
+
+<!-- Candidate detail drawer -->
+<div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-labelledby="drawerName" role="dialog" aria-modal="true">
+  <header class="drawer-head">
+    <div>
+      <h2 id="drawerName"></h2>
+      <p class="drawer-id" id="drawerId"></p>
+    </div>
+    <button type="button" class="drawer-close" id="drawerClose" aria-label="Close">&times;</button>
+  </header>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script src="/admin/app.js" defer></script>
+</body>
+</html>

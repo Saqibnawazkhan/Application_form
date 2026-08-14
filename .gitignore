@@ -1,0 +1,13 @@
+node_modules/
+
+# Secrets
+.env
+
+# Candidate data - never commit this
+data/
+uploads/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log

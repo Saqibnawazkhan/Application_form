@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect x="0" y="0" width="1200" height="10" fill="#ff5a1f"/>
+
+  <g transform="translate(90 92)">
+    <ellipse cx="26" cy="26" rx="23" ry="11" transform="rotate(-30 26 26)"
+             fill="none" stroke="#0b0b0c" stroke-width="3.4"/>
+    <circle cx="26" cy="26" r="8.5" fill="#ff5a1f"/>
+    <text x="70" y="36" font-family="Segoe UI, Helvetica, Arial, sans-serif"
+          font-size="30" font-weight="700" fill="#0b0b0c">Orbit
+      <tspan font-weight="400" fill="#6b7280"> Innovations</tspan>
+    </text>
+  </g>
+
+  <g transform="translate(90 232)">
+    <rect x="0" y="-34" width="322" height="44" rx="22" fill="#fff2ec"/>
+    <circle cx="26" cy="-12" r="5" fill="#ff5a1f"/>
+    <text x="44" y="-5" font-family="Segoe UI, Helvetica, Arial, sans-serif"
+          font-size="19" font-weight="600" fill="#23262b">Hybrid — Remote + Onsite</text>
+
+    <text x="0" y="96" font-family="Segoe UI, Helvetica, Arial, sans-serif"
+          font-size="76" font-weight="700" fill="#0b0b0c" letter-spacing="-2">Join Orbit Innovations</text>
+
+    <text x="0" y="152" font-family="Segoe UI, Helvetica, Arial, sans-serif"
+          font-size="29" fill="#6b7280">We&#8217;re looking for talented people to join our growing team.</text>
+
+    <text x="0" y="232" font-family="Segoe UI, Helvetica, Arial, sans-serif"
+          font-size="24" font-weight="600" fill="#0b0b0c">Website Developer
+      <tspan fill="#ff5a1f">  ·  </tspan>App Developer<tspan fill="#ff5a1f">  ·  </tspan>Digital Marketing Specialist
+    </text>
+  </g>
+
+  <rect x="90" y="520" width="250" height="58" rx="12" fill="#ff5a1f"/>
+  <text x="215" y="557" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="20" font-weight="700" fill="#ffffff" letter-spacing="1">APPLY NOW</text>
+</svg>

@@ -1,0 +1,292 @@
+/* ===========================================================================
+   Orbit Innovations — admin dashboard (layers on top of the public stylesheet)
+   =========================================================================== */
+
+.admin-body { background: var(--surface); }
+
+.admin-wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-inline: 20px;
+}
+
+.admin-header {
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.admin-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 62px;
+  flex-wrap: wrap;
+  padding-block: 10px;
+}
+.admin-header-actions { display: flex; gap: 8px; }
+
+.btn-sm { min-height: 40px; padding: 10px 14px; font-size: 14px; }
+
+.admin-main { padding: 26px 20px 70px; }
+
+.admin-title { font-size: 24px; margin-bottom: 18px; }
+
+/* ------------------------------- Stats ---------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(126px, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.stat {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 13px 15px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .15s ease;
+}
+.stat:hover { border-color: var(--line-strong); }
+.stat.active { border-color: var(--orange); background: var(--orange-soft); }
+.stat-value { display: block; font-size: 23px; font-weight: 700; letter-spacing: -.02em; }
+.stat-label { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ------------------------------ Filters --------------------------------- */
+
+.filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+  align-items: end;
+}
+.filters label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+.filters input, .filters select { min-height: 44px; padding: 10px 12px; font-size: 15px; }
+.reset-btn { justify-self: start; }
+
+.result-count { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+
+/* ------------------------------- Table ---------------------------------- */
+
+.table-wrap {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+}
+
+.apps-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+
+.apps-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.apps-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  vertical-align: middle;
+}
+.apps-table tbody tr:last-child td { border-bottom: 0; }
+.apps-table tbody tr { cursor: pointer; }
+.apps-table tbody tr:hover { background: var(--surface); }
+
+.cell-id { font-weight: 600; white-space: nowrap; }
+.cell-name { font-weight: 600; }
+.cell-sub { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+.cell-date { white-space: nowrap; color: var(--muted); font-size: 13px; }
+
+.empty { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14px; }
+
+/* ------------------------------ Status pill ----------------------------- */
+
+.pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  white-space: nowrap;
+}
+.pill-New         { background: var(--orange-soft); color: var(--orange-dark); border-color: #ffd8c7; }
+.pill-Reviewing   { background: #eff4ff; color: #1849a9; border-color: #cddcfb; }
+.pill-Shortlisted { background: #f4f3ff; color: #5925dc; border-color: #dcd7fe; }
+.pill-Interview   { background: #fffaeb; color: #b54708; border-color: #fedf89; }
+.pill-Offer       { background: #f0f9ff; color: #026aa2; border-color: #b9e6fe; }
+.pill-Rejected    { background: #fef3f2; color: #b42318; border-color: #fecdca; }
+.pill-Hired       { background: #ecfdf3; color: #067647; border-color: #abefc6; }
+
+/* ------------------------------- Pager ---------------------------------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ------------------------------- Drawer --------------------------------- */
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 11, 12, .45);
+  z-index: 40;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(560px, 100%);
+  background: var(--bg);
+  border-left: 1px solid var(--line);
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.drawer-head h2 { font-size: 20px; }
+.drawer-id { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+.drawer-close {
+  border: 0;
+  background: transparent;
+  font-size: 27px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0 6px;
+  font-family: inherit;
+}
+.drawer-close:hover { color: var(--ink); }
+
+.drawer-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.detail { min-width: 0; }
+.detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.detail-value { font-size: 15px; word-break: break-word; }
+.detail-value a { color: var(--orange-dark); }
+.detail.full { grid-column: 1 / -1; }
+
+.detail-block {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 13px 15px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.skill-tag {
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+  border: 1px solid #ffd8c7;
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.drawer-section { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 4px; }
+.drawer-section h3 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.drawer-actions { display: grid; gap: 10px; }
+.drawer-actions .btn { width: 100%; }
+.save-hint { font-size: 13px; color: var(--success); min-height: 18px; }
+
+/* -------------------------------- Login --------------------------------- */
+
+.login-body {
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 32px 26px;
+  box-shadow: var(--shadow);
+}
+.login-card h1 { font-size: 22px; margin-top: 22px; }
+.login-sub { color: var(--muted); font-size: 14px; margin-top: 6px; margin-bottom: 20px; }
+.login-card .btn-submit { margin-top: 4px; }
+.login-foot { margin-top: 20px; text-align: center; font-size: 14px; }
+.login-foot a { color: var(--muted); text-decoration: none; }
+.login-foot a:hover { color: var(--ink); }
+
+/* ----------------------------- Breakpoints ------------------------------ */
+
+@media (min-width: 700px) {
+  .filters { grid-template-columns: 2fr 1fr 1fr; }
+  .search-filter { grid-column: 1 / -1; }
+}
+
+@media (min-width: 1000px) {
+  .filters { grid-template-columns: 2.2fr 1fr 1.3fr 1fr 1fr auto; }
+  .search-filter { grid-column: auto; }
+}

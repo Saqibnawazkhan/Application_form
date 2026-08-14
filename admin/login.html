@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Orbit Innovations Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="login-body">
+  <main class="login-card">
+    <a class="logo" href="/">
+      <svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+        <ellipse cx="20" cy="20" rx="18" ry="8.5" transform="rotate(-30 20 20)"
+                 fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="20" cy="20" r="6.5" fill="#FF5A1F"/>
+      </svg>
+      <span class="logo-text">Orbit <span>Innovations</span></span>
+    </a>
+
+    <h1>Hiring dashboard</h1>
+    <p class="login-sub">Sign in to review candidate applications.</p>
+
+    <div class="alert alert-error" id="loginAlert" role="alert" hidden></div>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="password">Admin password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password"
+               required autofocus placeholder="Enter password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-submit" id="loginBtn">
+        <span class="btn-label">Sign in</span>
+        <span class="spinner" aria-hidden="true"></span>
+      </button>
+    </form>
+
+    <p class="login-foot"><a href="/">&larr; Back to the application page</a></p>
+  </main>
+
+<script src="/admin/login.js" defer></script>
+</body>
+</html>

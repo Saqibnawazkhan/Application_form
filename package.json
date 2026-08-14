@@ -1,0 +1,21 @@
+{
+  "name": "orbit-innovations-careers",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Job application page for Orbit Innovations - single page form + secure backend",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning src/server.js",
+    "dev": "node --no-warnings=ExperimentalWarning --watch src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
+    "multer": "^2.0.1"
+  }
+}
