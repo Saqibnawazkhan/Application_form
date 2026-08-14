@@ -16,14 +16,20 @@ Runs on Vercel (serverless + Postgres) or on any ordinary Node host.
 
 ### 1. Create the database
 
-In the Vercel dashboard: **Storage → Create Database → Postgres** (this is Neon;
-the free tier is enough). Connect it to the project — Vercel injects
-`POSTGRES_URL` automatically, and the app picks it up.
+In the Vercel dashboard: **Storage → Create Database**, then under *Marketplace
+Database Providers* pick **Neon** (Serverless Postgres) → **Create**. The free
+plan is enough. Choose a region near your candidates and connect it to the
+project.
 
-Using Neon or Supabase directly instead? Set `DATABASE_URL` yourself, and use the
-**pooled** connection string — the one with `-pooler` in the hostname. Serverless
-functions open a lot of short-lived connections, and the pooler is what stops
-them exhausting the database's connection limit.
+Vercel then adds the connection details to the project's environment variables
+automatically. `DATABASE_URL` arrives already pooled, and the app reads
+`DATABASE_URL` first, falling back to `POSTGRES_URL` — either naming works.
+
+Setting up Postgres yourself instead (Supabase, or Neon outside the
+marketplace)? Set `DATABASE_URL` manually and use the **pooled** connection
+string — the one with `-pooler` in the hostname. Serverless functions open a lot
+of short-lived connections, and the pooler is what stops them exhausting the
+database's connection limit.
 
 ### 2. Set environment variables
 
