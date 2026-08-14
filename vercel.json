@@ -1,17 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "outputDirectory": "public",
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "admin/**",
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index" },
-    { "source": "/admin", "destination": "/api/index" },
-    { "source": "/admin/:path*", "destination": "/api/index" },
-    { "source": "/healthz", "destination": "/api/index" },
+    { "source": "/", "destination": "/index.html" },
     { "source": "/apply", "destination": "/index.html" },
     { "source": "/careers", "destination": "/index.html" },
     { "source": "/jobs", "destination": "/index.html" }

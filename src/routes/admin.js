@@ -1,9 +1,9 @@
 'use strict';
 
+const fs = require('node:fs');
 const path = require('node:path');
 const express = require('express');
 
-const config = require('../config');
 const store = require('../db');
 const { POSITIONS } = require('../validation');
 const {
@@ -18,18 +18,40 @@ const {
 
 const router = express.Router();
 
+/**
+ * The dashboard's own files are read once at startup instead of being streamed
+ * per request with res.sendFile.
+ *
+ * Vercel bundles only the files it can statically trace, and it ignores
+ * express.static entirely. A literal __dirname read is traceable; a sendFile
+ * path built at runtime is not - so this is what guarantees these files are
+ * actually present in the deployed function. It also saves a disk read per hit.
+ */
+const ADMIN_DIR = path.join(__dirname, '..', '..', 'admin');
+const ASSETS = {
+  dashboardHtml: fs.readFileSync(path.join(ADMIN_DIR, 'index.html'), 'utf8'),
+  loginHtml: fs.readFileSync(path.join(ADMIN_DIR, 'login.html'), 'utf8'),
+  css: fs.readFileSync(path.join(ADMIN_DIR, 'admin.css'), 'utf8'),
+  dashboardJs: fs.readFileSync(path.join(ADMIN_DIR, 'app.js'), 'utf8'),
+  loginJs: fs.readFileSync(path.join(ADMIN_DIR, 'login.js'), 'utf8'),
+};
+
+function sendAsset(res, body, type) {
+  res.type(type).set('Cache-Control', 'private, no-store').send(body);
+}
+
 // ---------------------------------------------------------------------------
 // Auth
 // ---------------------------------------------------------------------------
 
 router.get('/login', (req, res) => {
   if (isAuthenticated(req)) return res.redirect('/admin');
-  res.sendFile(path.join(config.adminDir, 'login.html'));
+  sendAsset(res, ASSETS.loginHtml, 'html');
 });
 
 // Assets the sign-in page itself needs (no session yet).
-router.get('/admin.css', (req, res) => res.sendFile(path.join(config.adminDir, 'admin.css')));
-router.get('/login.js', (req, res) => res.sendFile(path.join(config.adminDir, 'login.js')));
+router.get('/admin.css', (req, res) => sendAsset(res, ASSETS.css, 'css'));
+router.get('/login.js', (req, res) => sendAsset(res, ASSETS.loginJs, 'js'));
 
 router.post('/api/login', express.json(), async (req, res, next) => {
   try {
@@ -66,11 +88,9 @@ router.use(requireAdmin);
 // Dashboard
 // ---------------------------------------------------------------------------
 
-router.get('/', (req, res) => {
-  res.sendFile(path.join(config.adminDir, 'index.html'));
-});
+router.get('/', (req, res) => sendAsset(res, ASSETS.dashboardHtml, 'html'));
 
-router.get('/app.js', (req, res) => res.sendFile(path.join(config.adminDir, 'app.js')));
+router.get('/app.js', (req, res) => sendAsset(res, ASSETS.dashboardJs, 'js'));
 
 function toApplication(row) {
   return {

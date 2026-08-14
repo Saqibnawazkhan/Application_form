@@ -53,9 +53,22 @@ falling back to a generated one.
 
 ### 3. Deploy
 
-Import the repo and deploy — there is no build step. `vercel.json` already routes
-everything: static files from `public/` go to the CDN, and `/api/*` and `/admin/*`
-run as a serverless function.
+Import the repo and deploy — there is no build step and no framework preset to
+choose.
+
+Vercel detects Express with zero configuration: it looks for the app at
+`src/app.js` (among a few other conventional names) and, because that file
+exports the app, turns the whole thing into one function. Everything under
+`public/` is served from the CDN instead.
+
+Two consequences worth knowing if you edit this later:
+
+- **`express.static()` does nothing on Vercel.** Anything the browser must fetch
+  directly belongs in `public/`. The clean URLs are pointed at the static
+  `index.html` by the rewrites in `vercel.json`.
+- **Do not set `outputDirectory`.** It makes Vercel search for the server
+  entrypoint inside that folder, and the build fails with
+  `No entrypoint found in output directory`.
 
 The database schema is created automatically on the first request. To do it up
 front instead, run `npm run db:setup` locally with `DATABASE_URL` pointing at the
@@ -262,10 +275,8 @@ Neon also keeps point-in-time restore on paid plans.
 ## Project layout
 
 ```
-api/
-  index.js               Vercel serverless entrypoint (exports the Express app)
 src/
-  app.js                 builds the Express app - shared by both entrypoints
+  app.js                 the Express app - also Vercel's zero-config entrypoint
   server.js              local / self-hosted listener
   config.js              env config and startup checks
   db.js                  Postgres schema, queries and rate limiting

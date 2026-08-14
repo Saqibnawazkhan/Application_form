@@ -55,8 +55,9 @@ app.use('/api', withSchema, applicationRoutes);
 // ---------------------------------------------------------------------------
 // Public page
 //
-// On Vercel these files are served straight from the CDN and never reach this
-// handler; locally this is what serves them.
+// Local only. Vercel serves everything under public/ from its CDN and ignores
+// express.static, so on a deployment none of this runs - the rewrites in
+// vercel.json point the clean URLs at the static index.html instead.
 // ---------------------------------------------------------------------------
 
 app.use(
@@ -84,11 +85,25 @@ app.get('/healthz', async (req, res) => {
   }
 });
 
+/**
+ * Answered inline rather than by redirecting to "/" or serving a file: on
+ * Vercel the public folder is not part of the function bundle, so a redirect
+ * here could bounce between the CDN and this handler.
+ */
 app.use((req, res) => {
   if (req.path.startsWith('/api/') || req.path.startsWith('/admin/api/')) {
     return res.status(404).json({ ok: false, error: 'Not found.' });
   }
-  res.redirect(302, '/');
+  res.status(404).type('html').send(
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<title>Page not found - Orbit Innovations</title></head>' +
+      '<body style="font-family:system-ui,sans-serif;text-align:center;padding:80px 24px">' +
+      '<h1 style="font-size:20px;margin:0 0 8px">Page not found</h1>' +
+      '<p style="color:#6b7280;margin:0 0 24px">That link does not exist.</p>' +
+      '<a href="/" style="color:#e0480f;font-weight:600">Go to the application form</a>' +
+      '</body></html>'
+  );
 });
 
 // ---------------------------------------------------------------------------
