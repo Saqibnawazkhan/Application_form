@@ -1,48 +1,84 @@
 # Orbit Innovations — Careers Application Page
 
 A single, fast application page plus a secure backend and a private admin dashboard
-for reviewing candidates. No frontend framework, no build step, no external database.
+for reviewing candidates. No frontend framework, no build step.
 
 ```
 Candidate  →  /            single-page form
 Your team  →  /admin       password-protected dashboard
 ```
 
+Runs on Vercel (serverless + Postgres) or on any ordinary Node host.
+
 ---
 
-## Quick start
+## Deploy to Vercel
+
+### 1. Create the database
+
+In the Vercel dashboard: **Storage → Create Database → Postgres** (this is Neon;
+the free tier is enough). Connect it to the project — Vercel injects
+`POSTGRES_URL` automatically, and the app picks it up.
+
+Using Neon or Supabase directly instead? Set `DATABASE_URL` yourself, and use the
+**pooled** connection string — the one with `-pooler` in the hostname. Serverless
+functions open a lot of short-lived connections, and the pooler is what stops
+them exhausting the database's connection limit.
+
+### 2. Set environment variables
+
+**Settings → Environment Variables:**
+
+| Variable | Value |
+| --- | --- |
+| `ADMIN_PASSWORD` | A long random password for `/admin` |
+| `SESSION_SECRET` | A long random string (command below) |
+| `PUBLIC_URL` | Your live URL, e.g. `https://orbit-careers.vercel.app` |
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+If either secret is missing in production the app refuses to start rather than
+falling back to a generated one.
+
+### 3. Deploy
+
+Import the repo and deploy — there is no build step. `vercel.json` already routes
+everything: static files from `public/` go to the CDN, and `/api/*` and `/admin/*`
+run as a serverless function.
+
+The database schema is created automatically on the first request. To do it up
+front instead, run `npm run db:setup` locally with `DATABASE_URL` pointing at the
+same database.
+
+---
+
+## Run it locally
 
 ```bash
 npm install
-cp .env.example .env        # then edit .env (see below)
+cp .env.example .env        # then edit .env
+npm run db:setup            # creates the tables
 npm start
 ```
 
 - Application form → <http://localhost:3000/>
 - Admin dashboard → <http://localhost:3000/admin>
 
-Requires **Node.js 22.5 or newer** (it uses the built-in `node:sqlite`, so there is
-nothing to compile and no database server to run).
-
-### Configure `.env`
+Local development needs a Postgres to point `DATABASE_URL` at. The simplest
+option is a second free Neon database (or a Neon branch) used as your dev
+database — no local install required.
 
 | Variable | What it does |
 | --- | --- |
-| `PORT` | Port to listen on (default `3000`) |
-| `PUBLIC_URL` | Your live URL, e.g. `https://orbitinnovations.com/apply` |
-| `ADMIN_PASSWORD` | Password for `/admin` — **change this** |
-| `SESSION_SECRET` | Signs admin session cookies — **change this** |
-| `TRUST_PROXY` | `true` when behind nginx / Caddy / Render / Railway |
-| `MAX_UPLOAD_MB` | Max CV size (default `5`) |
-
-Generate a strong session secret:
-
-```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
-
-If `NODE_ENV=production` and either secret is missing, the server refuses to start
-rather than running with a generated one.
+| `DATABASE_URL` | Postgres connection string (use the pooled one) |
+| `ADMIN_PASSWORD` | Password for `/admin` |
+| `SESSION_SECRET` | Signs admin session cookies |
+| `PUBLIC_URL` | Your live URL, used for the share link |
+| `MAX_UPLOAD_MB` | Max CV size, default `4` — see the limit note below |
+| `PORT` | Local port, default `3000` |
+| `TRUST_PROXY` | `true` when self-hosting behind nginx / Caddy (Vercel is detected automatically) |
 
 ---
 
@@ -116,22 +152,41 @@ Statuses: `New` (the default on submit) → `Reviewing` → `Shortlisted` →
 
 ## Stored data
 
-Every application row in `data/applications.db`:
+`applications` — one row per submission:
 
 | Field | Notes |
 | --- | --- |
 | `application_id` | Human-readable, e.g. `ORB-2026-0042` |
-| `created_at` / `updated_at` | ISO-8601 UTC |
+| `created_at` / `updated_at` | `timestamptz` |
 | `full_name`, `email`, `phone`, `city` | Normalised on the server |
 | `position`, `work_preference`, `experience` | Validated against fixed lists |
-| `skills` | JSON array |
+| `skills` | `jsonb` array |
 | `portfolio_url`, `github_url` | Normalised to absolute `https://` URLs |
-| `cv_original_name`, `cv_stored_name`, `cv_mime`, `cv_size` | File lives in `uploads/` |
 | `about`, `expected_salary`, `availability` | Optional |
 | `status` | Defaults to `New` |
 | `internal_notes` | Team-only |
 | `source` | Where the candidate came from |
 | `ip_hash`, `user_agent` | Salted hash only — for abuse review, not identification |
+
+`application_files` — the CV, one row per application (`file_name`, `mime`,
+`size`, `bytes`). It is a separate table so that listing applications never
+pulls file data along with it.
+
+`rate_limits` — shared spam counters.
+
+### About CV storage
+
+CVs are stored as bytes in Postgres rather than in object storage. Vercel Blob
+serves files from a public URL, which would put candidate CVs one leaked link
+away from the open web; keeping them in the database means the only way to read
+one is the authenticated admin route.
+
+The trade-off is database size. A typical CV is 100–500 KB and Neon's free tier
+holds 0.5 GB, so roughly 1,000–5,000 CVs before you need a paid tier. To check:
+
+```sql
+SELECT pg_size_pretty(pg_total_relation_size('application_files'));
+```
 
 ---
 
@@ -140,13 +195,12 @@ Every application row in `data/applications.db`:
 - **Everything is re-validated on the server.** The browser's checks only exist
   to give fast feedback; `src/validation.js` is the authority, and dropdown
   values are checked against allow-lists rather than trusted.
-- **CV files are never publicly reachable.** They are written to `uploads/`
-  (outside the static folder) under a random filename, and the only route that
-  can read them requires an admin session. Filenames are re-derived from the
-  database, so path traversal has nothing to attach to.
+- **CV files are never publicly reachable.** They live in a table that only the
+  authenticated admin download route reads. There is no URL, signed or
+  otherwise, that serves a CV without a session.
 - **Uploads are checked by content, not just extension.** The magic bytes must
   match the claimed type — a `.exe` renamed to `.pdf` is rejected, and so is a
-  text file with a `.pdf` extension. Limited to one file, 5 MB.
+  text file with a `.pdf` extension. Limited to one file.
 - **No candidate data is public.** There is no public read endpoint at all, so
   no candidate can reach another candidate's application. The dashboard and the
   entire `/admin/api` surface sit behind a signed, HttpOnly, SameSite=Strict
@@ -156,51 +210,66 @@ Every application row in `data/applications.db`:
   twice for the same one. The submit button also locks while a request is in
   flight.
 - **Spam defences:** a hidden honeypot field, a minimum 3-second fill time,
-  10 submissions per hour per IP, and 10 sign-in attempts per 15 minutes.
-- **Headers:** Helmet with a strict CSP (`default-src 'self'`, no inline
-  scripts or styles, `frame-ancestors 'none'`).
+  10 submissions per hour per IP, and 10 sign-in attempts per 15 minutes. The
+  counters live in Postgres, not in memory — on serverless each instance has its
+  own memory, so an in-process counter would reset constantly and protect
+  nothing.
+- **Headers:** a strict CSP (`default-src 'self'`, no inline scripts or styles,
+  `frame-ancestors 'none'`) applied by Helmet on dynamic routes and by
+  `vercel.json` on static ones.
 - **CSV export is injection-safe** — cells starting with `=`, `+`, `-` or `@`
   are prefixed so a spreadsheet cannot execute them.
 
-`.gitignore` excludes `.env`, `data/` and `uploads/`. Do not commit candidate data.
+`.gitignore` excludes `.env`. Never commit real credentials.
 
 ---
 
-## Deploying
+## Upload size limit
 
-Any Node host works (Render, Railway, Fly, a VPS behind nginx). Two rules:
+Vercel rejects serverless request bodies larger than **4.5 MB** before they ever
+reach the app, so `MAX_UPLOAD_MB` defaults to `4`. The limit is enforced in three
+places, and all three must agree if you change it:
 
-1. Set `NODE_ENV=production`, `TRUST_PROXY=true`, and real values for
-   `ADMIN_PASSWORD`, `SESSION_SECRET` and `PUBLIC_URL`.
-2. Put `data/` and `uploads/` on a **persistent disk**. On an ephemeral
-   filesystem every deploy would wipe the applications and CVs.
+1. `MAX_UPLOAD_MB` in the environment
+2. `MAX_FILE_BYTES` in `public/assets/app.js`
+3. The "max 4 MB" hint text in `public/index.html`
 
-Serve over HTTPS — session cookies are marked `Secure` in production.
+Raising it above 4.5 only works when self-hosting, not on Vercel.
 
-### Backups
+---
 
-The whole dataset is two paths: `data/applications.db` and `uploads/`. Copy both
-on the same schedule; a database backup without its CVs is only half a backup.
+## Backups
+
+Everything is in Postgres, so one dump covers applications and CVs together:
+
+```bash
+pg_dump "$DATABASE_URL" -Fc -f orbit-applications.dump
+```
+
+Neon also keeps point-in-time restore on paid plans.
 
 ---
 
 ## Project layout
 
 ```
+api/
+  index.js               Vercel serverless entrypoint (exports the Express app)
 src/
-  server.js              app wiring, security headers, static + aliases
+  app.js                 builds the Express app - shared by both entrypoints
+  server.js              local / self-hosted listener
   config.js              env config and startup checks
-  db.js                  SQLite schema and queries
+  db.js                  Postgres schema, queries and rate limiting
   validation.js          server-side field validation
   security.js            sessions, password check, IP hashing
-  upload.js              CV type checking and safe storage
+  upload.js              CV type checking
   routes/
     applications.js      POST /api/applications
     admin.js             sign-in, dashboard API, CV download, CSV export
-public/                  the candidate-facing page
+public/                  the candidate-facing page (served by the CDN on Vercel)
 admin/                   the dashboard (served only to signed-in admins)
-data/                    SQLite database (created on first run)
-uploads/                 CV files (private)
+scripts/setup-db.js      npm run db:setup
+vercel.json              routing, function config and static security headers
 ```
 
 ---

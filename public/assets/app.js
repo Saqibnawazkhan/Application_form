@@ -7,7 +7,8 @@
 (function () {
   'use strict';
 
-  var MAX_FILE_BYTES = 5 * 1024 * 1024;
+  // Keep in sync with MAX_UPLOAD_MB. Vercel rejects request bodies over 4.5 MB.
+  var MAX_FILE_BYTES = 4 * 1024 * 1024;
   var ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx'];
 
   var form = document.getElementById('applicationForm');
@@ -147,7 +148,7 @@
       if (ALLOWED_EXTENSIONS.indexOf(extension) === -1) {
         return 'Please upload a PDF, DOC or DOCX file.';
       }
-      if (file.size > MAX_FILE_BYTES) return 'Your CV is too large. Maximum size is 5 MB.';
+      if (file.size > MAX_FILE_BYTES) return 'Your CV is too large. Maximum size is 4 MB.';
       if (file.size === 0) return 'That file appears to be empty.';
       return '';
     },

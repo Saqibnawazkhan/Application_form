@@ -12,24 +12,34 @@ function bool(value, fallback = false) {
   return /^(1|true|yes|on)$/i.test(String(value).trim());
 }
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isVercel = Boolean(process.env.VERCEL);
+const isProduction = process.env.NODE_ENV === 'production' || isVercel;
 
 const config = {
   root: ROOT,
   isProduction,
+  isVercel,
   port: Number(process.env.PORT || 3000),
   publicUrl: (process.env.PUBLIC_URL || 'http://localhost:3000').replace(/\/+$/, ''),
-  trustProxy: bool(process.env.TRUST_PROXY, false),
 
-  // Directories. `uploads` lives OUTSIDE the static folder on purpose:
-  // CV files are only ever streamed through the authenticated admin route.
-  dataDir: path.join(ROOT, 'data'),
-  uploadDir: path.join(ROOT, 'uploads'),
+  // Vercel always sits behind a proxy, so the real client IP is in X-Forwarded-For.
+  trustProxy: bool(process.env.TRUST_PROXY, isVercel),
+
   publicDir: path.join(ROOT, 'public'),
   adminDir: path.join(ROOT, 'admin'),
-  dbFile: path.join(ROOT, 'data', 'applications.db'),
 
-  maxUploadBytes: Math.round(Number(process.env.MAX_UPLOAD_MB || 5) * 1024 * 1024),
+  // Vercel's Postgres integration sets POSTGRES_URL; Neon and Supabase set DATABASE_URL.
+  databaseUrl:
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_PRISMA_URL ||
+    '',
+
+  /**
+   * Vercel rejects serverless request bodies over 4.5 MB before they ever reach
+   * this code, so the CV cap has to stay under that ceiling.
+   */
+  maxUploadBytes: Math.round(Number(process.env.MAX_UPLOAD_MB || 4) * 1024 * 1024),
 
   adminPassword: process.env.ADMIN_PASSWORD || '',
   sessionSecret: process.env.SESSION_SECRET || '',
@@ -50,11 +60,19 @@ if (!config.sessionSecret) {
   warnings.push('SESSION_SECRET is not set. Using a random secret - admin sessions reset on restart.');
 }
 
+if (!config.databaseUrl) {
+  warnings.push('DATABASE_URL is not set. Set it to your Postgres connection string.');
+}
+
 if (isProduction) {
   for (const message of warnings) {
-    // In production these are hard failures: never ship with generated secrets.
+    // Never run in production on generated secrets or without a database.
     throw new Error(`[config] ${message}`);
   }
+}
+
+if (config.maxUploadBytes > 4.5 * 1024 * 1024) {
+  warnings.push('MAX_UPLOAD_MB is above 4.5 - Vercel will reject those uploads before they reach the app.');
 }
 
 config.warnings = warnings;

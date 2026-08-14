@@ -1,18 +1,16 @@
 'use strict';
 
-const fs = require('node:fs');
-const fsp = require('node:fs/promises');
 const path = require('node:path');
-const crypto = require('node:crypto');
 const multer = require('multer');
 const config = require('./config');
 
 /**
  * CV handling.
  *
- * Files are buffered in memory, checked against both their extension and their
- * real magic bytes, then written to /uploads under a random name. That folder is
- * never served statically - the only way out is the authenticated admin route.
+ * The file is buffered in memory and checked against both its extension and its
+ * real magic bytes, then handed to the database layer. Nothing is ever written
+ * to disk - the filesystem is read-only on Vercel, and keeping the bytes in
+ * Postgres means the only way to read a CV is the authenticated admin route.
  */
 
 const ALLOWED = [
@@ -53,17 +51,17 @@ function detectType(buffer, originalName) {
   if (!entry) return null;
 
   const header = buffer.subarray(0, 8).toString('hex');
-  const matches = entry.magic.some((signature) => header.startsWith(signature));
-  return matches ? entry : null;
+  return entry.magic.some((signature) => header.startsWith(signature)) ? entry : null;
 }
 
-/** Strip any path/traversal characters from the name we show in the dashboard. */
+/** Strip any path or traversal characters from the name shown in the dashboard. */
 function safeOriginalName(name) {
   const base = path.basename(String(name || 'cv'));
   return base.replace(/[^\w.\- ]+/g, '_').slice(0, 120) || 'cv';
 }
 
-async function storeCv(file) {
+/** Validate an uploaded CV and return the record to store. Throws on bad input. */
+function prepareCv(file) {
   const detected = detectType(file.buffer, file.originalname);
   if (!detected) {
     const error = new Error('That file does not look like a valid PDF, DOC or DOCX.');
@@ -71,35 +69,13 @@ async function storeCv(file) {
     throw error;
   }
 
-  const storedName = `${Date.now().toString(36)}-${crypto.randomBytes(16).toString('hex')}${detected.ext}`;
-  const destination = path.join(config.uploadDir, storedName);
-
-  await fsp.mkdir(config.uploadDir, { recursive: true });
-  await fsp.writeFile(destination, file.buffer, { mode: 0o600, flag: 'wx' });
-
   return {
-    storedName,
+    buffer: file.buffer,
     originalName: safeOriginalName(file.originalname),
     mime: detected.mime,
     size: file.size,
+    extension: detected.ext,
   };
 }
 
-/** Resolve a stored CV path, refusing anything that escapes the upload folder. */
-function resolveCvPath(storedName) {
-  const base = path.basename(String(storedName || ''));
-  if (!base || !ACCEPTED_EXTENSIONS.includes(path.extname(base).toLowerCase())) return null;
-
-  const resolved = path.resolve(config.uploadDir, base);
-  if (path.dirname(resolved) !== path.resolve(config.uploadDir)) return null;
-  if (!fs.existsSync(resolved)) return null;
-  return resolved;
-}
-
-async function removeCv(storedName) {
-  const target = resolveCvPath(storedName);
-  if (!target) return;
-  await fsp.rm(target, { force: true });
-}
-
-module.exports = { upload, storeCv, resolveCvPath, removeCv, ACCEPTED_EXTENSIONS };
+module.exports = { upload, prepareCv, ACCEPTED_EXTENSIONS };

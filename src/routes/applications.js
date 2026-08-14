@@ -1,12 +1,11 @@
 'use strict';
 
 const express = require('express');
-const rateLimit = require('express-rate-limit');
 
 const config = require('../config');
 const store = require('../db');
 const { validateApplication, clean } = require('../validation');
-const { upload, storeCv, removeCv } = require('../upload');
+const { upload, prepareCv } = require('../upload');
 const { hashIp } = require('../security');
 
 const router = express.Router();
@@ -16,26 +15,38 @@ const router = express.Router();
  * open roles plus a few corrected mistakes, so a real candidate is never locked
  * out - the unique index is what actually stops duplicates.
  */
-const submitLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  limit: 10,
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-  skip: () => process.env.NODE_ENV === 'test',
-  message: {
-    ok: false,
-    error: 'Too many applications from this device. Please try again later.',
-  },
-});
+const SUBMIT_LIMIT = 10;
+const SUBMIT_WINDOW_MS = 60 * 60 * 1000;
+
+async function rateLimit(req, res, next) {
+  if (process.env.NODE_ENV === 'test') return next();
+  try {
+    const { allowed } = await store.consumeRateLimit(
+      `submit:${hashIp(req.ip)}`,
+      SUBMIT_LIMIT,
+      SUBMIT_WINDOW_MS
+    );
+    if (!allowed) {
+      return res.status(429).json({
+        ok: false,
+        error: 'Too many applications from this device. Please try again later.',
+      });
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
 
 function fileUpload(req, res, next) {
   upload.single('cv')(req, res, (error) => {
     if (!error) return next();
 
     if (error.code === 'LIMIT_FILE_SIZE') {
+      const limitMb = Math.round((config.maxUploadBytes / (1024 * 1024)) * 10) / 10;
       return res.status(413).json({
         ok: false,
-        errors: { cv: `Your CV is too large. Maximum size is ${config.maxUploadBytes / (1024 * 1024)} MB.` },
+        errors: { cv: `Your CV is too large. Maximum size is ${limitMb} MB.` },
       });
     }
     if (error.code === 'INVALID_FILE_TYPE') {
@@ -48,7 +59,7 @@ function fileUpload(req, res, next) {
   });
 }
 
-router.post('/applications', submitLimiter, fileUpload, async (req, res, next) => {
+router.post('/applications', rateLimit, fileUpload, async (req, res, next) => {
   const body = req.body || {};
 
   // --- Spam traps -----------------------------------------------------------
@@ -77,20 +88,9 @@ router.post('/applications', submitLimiter, fileUpload, async (req, res, next) =
     return res.status(400).json({ ok: false, errors });
   }
 
-  // --- Duplicate guard: one application per email, per position -------------
-  const existing = store.findDuplicate(data.emailNormalized, data.position);
-  if (existing) {
-    return res.status(409).json({
-      ok: false,
-      duplicate: true,
-      applicationId: existing.application_id,
-      error: `You have already applied for ${data.position} with this email address. Our team already has your application (${existing.application_id}).`,
-    });
-  }
-
   let cv;
   try {
-    cv = await storeCv(req.file);
+    cv = prepareCv(req.file);
   } catch (error) {
     if (error.code === 'INVALID_FILE_TYPE') {
       return res.status(415).json({ ok: false, errors: { cv: error.message } });
@@ -98,42 +98,46 @@ router.post('/applications', submitLimiter, fileUpload, async (req, res, next) =
     return next(error);
   }
 
-  const now = new Date().toISOString();
-
   try {
-    const { applicationId } = store.createApplication({
-      created_at: now,
-      updated_at: now,
-      full_name: data.fullName,
-      email: data.email,
-      email_normalized: data.emailNormalized,
-      phone: data.phone,
-      phone_normalized: data.phoneNormalized,
-      city: data.city,
-      position: data.position,
-      work_preference: data.workPreference,
-      experience: data.experience,
-      skills: JSON.stringify(data.skills),
-      portfolio_url: data.portfolioUrl,
-      github_url: data.githubUrl,
-      cv_original_name: cv.originalName,
-      cv_stored_name: cv.storedName,
-      cv_mime: cv.mime,
-      cv_size: cv.size,
-      about: data.about,
-      expected_salary: data.expectedSalary,
-      availability: data.availability,
-      source: clean(body.source, 60) || null,
-      ip_hash: hashIp(req.ip),
-      user_agent: clean(req.get('user-agent'), 250) || null,
-    });
+    // --- Duplicate guard: one application per email, per position -----------
+    const existing = await store.findDuplicate(data.emailNormalized, data.position);
+    if (existing) {
+      return res.status(409).json({
+        ok: false,
+        duplicate: true,
+        applicationId: existing.application_id,
+        error: `You have already applied for ${data.position} with this email address. Our team already has your application (${existing.application_id}).`,
+      });
+    }
+
+    const { applicationId } = await store.createApplication(
+      {
+        full_name: data.fullName,
+        email: data.email,
+        email_normalized: data.emailNormalized,
+        phone: data.phone,
+        phone_normalized: data.phoneNormalized,
+        city: data.city,
+        position: data.position,
+        work_preference: data.workPreference,
+        experience: data.experience,
+        skills: data.skills,
+        portfolio_url: data.portfolioUrl,
+        github_url: data.githubUrl,
+        about: data.about,
+        expected_salary: data.expectedSalary,
+        availability: data.availability,
+        source: clean(body.source, 60) || null,
+        ip_hash: hashIp(req.ip),
+        user_agent: clean(req.get('user-agent'), 250) || null,
+      },
+      cv
+    );
 
     return res.status(201).json({ ok: true, applicationId });
   } catch (error) {
-    // Never leave an orphaned CV on disk if the insert fails.
-    await removeCv(cv.storedName).catch(() => {});
-
-    if (String(error.message || '').includes('UNIQUE constraint failed')) {
+    // 23505 = unique_violation: two submissions raced past the check above.
+    if (error.code === '23505') {
       return res.status(409).json({
         ok: false,
         duplicate: true,
