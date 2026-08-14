@@ -5,7 +5,7 @@
   "description": "Job application page for Orbit Innovations - single page form + secure backend",
   "main": "src/server.js",
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "scripts": {
     "start": "node src/server.js",
