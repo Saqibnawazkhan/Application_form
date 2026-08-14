@@ -39,7 +39,10 @@ database's connection limit.
 | --- | --- |
 | `ADMIN_PASSWORD` | A long random password for `/admin` |
 | `SESSION_SECRET` | A long random string (command below) |
-| `PUBLIC_URL` | Your live URL, e.g. `https://orbit-careers.vercel.app` |
+
+Those two are the whole list. You do not need to set `PUBLIC_URL` on Vercel —
+the share button builds its link from `window.location` in the browser, so it is
+always correct on whatever domain the page is served from.
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
@@ -81,7 +84,7 @@ database — no local install required.
 | `DATABASE_URL` | Postgres connection string (use the pooled one) |
 | `ADMIN_PASSWORD` | Password for `/admin` |
 | `SESSION_SECRET` | Signs admin session cookies |
-| `PUBLIC_URL` | Your live URL, used for the share link |
+| `PUBLIC_URL` | Cosmetic — only printed in the local startup banner |
 | `MAX_UPLOAD_MB` | Max CV size, default `4` — see the limit note below |
 | `PORT` | Local port, default `3000` |
 | `TRUST_PROXY` | `true` when self-hosting behind nginx / Caddy (Vercel is detected automatically) |
