@@ -21,9 +21,14 @@ Database Providers* pick **Neon** (Serverless Postgres) → **Create**. The free
 plan is enough. Choose a region near your candidates and connect it to the
 project.
 
-Vercel then adds the connection details to the project's environment variables
-automatically. `DATABASE_URL` arrives already pooled, and the app reads
-`DATABASE_URL` first, falling back to `POSTGRES_URL` — either naming works.
+In Neon's *Connect Project* dialog, set **Custom Environment Variable Prefix** to
+`DATABASE`, which produces `DATABASE_URL`. The default prefix (`STORAGE`) also
+works — the app checks `DATABASE_URL`, `POSTGRES_URL` and `STORAGE_URL` in that
+order — but `DATABASE` is the clearest. Whichever you pick, the value Vercel
+injects is already the pooled URL.
+
+Leave both **Create Database Branch For Deployment** boxes unchecked. Branching
+production would put live applications in a per-deployment branch.
 
 Setting up Postgres yourself instead (Supabase, or Neon outside the
 marketplace)? Set `DATABASE_URL` manually and use the **pooled** connection

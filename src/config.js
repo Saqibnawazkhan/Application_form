@@ -28,10 +28,18 @@ const config = {
   publicDir: path.join(ROOT, 'public'),
   adminDir: path.join(ROOT, 'admin'),
 
-  // Vercel's Postgres integration sets POSTGRES_URL; Neon and Supabase set DATABASE_URL.
+  /**
+   * Connection string, under whichever name the provider used.
+   *
+   * Neon's Vercel integration names it after the prefix chosen when connecting
+   * the project ("STORAGE" is the default, giving STORAGE_URL); Vercel Postgres
+   * uses POSTGRES_URL; Neon and Supabase direct both use DATABASE_URL. Prefer
+   * the pooled URL and never the explicitly unpooled one.
+   */
   databaseUrl:
     process.env.DATABASE_URL ||
     process.env.POSTGRES_URL ||
+    process.env.STORAGE_URL ||
     process.env.POSTGRES_PRISMA_URL ||
     '',
 
